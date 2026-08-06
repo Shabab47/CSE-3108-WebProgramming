@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 01 — HTML5 Fundamentals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --paper:   #F8F5EF;
+      --surface: #F0EDE5;
+      --ink:     #1D1A16;
+      --stone:   #7A7066;
+      --rule:    #D8D1C5;
+      --accent:  #7B3928;
+      --code-bg: #161412;
+      --code-fg: #CCC5B8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--paper);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      color: var(--ink);
+    }
+
+    .deck { width: 100vw; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--paper);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .slide.active { display: flex; }
+
+    /* ── Page counter ── */
+    #pager {
+      position: fixed;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--rule);
+      letter-spacing: 0.12em;
+      z-index: 1000;
+      user-select: none;
+    }
+
+    /* ── Hero / Title slide ── */
+    .hero {
+      justify-content: center;
+      padding: 0 128px;
+    }
+
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-bottom: 32px;
+    }
+
+    .hero-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 7rem;
+      font-weight: 300;
+      line-height: 0.95;
+      color: var(--ink);
+      letter-spacing: -0.025em;
+      margin-bottom: 36px;
+    }
+
+    .hero-line {
+      width: 48px;
+      height: 1px;
+      background: var(--accent);
+      margin-bottom: 32px;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: var(--stone);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    /* ── Standard slide header ── */
+    .sh {
+      padding: 44px 96px 20px;
+      border-bottom: 1px solid var(--rule);
+      flex-shrink: 0;
+    }
+
+    .sh-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .sh-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.015em;
+      line-height: 1.1;
+    }
+
+    /* ── Slide body ── */
+    .sb {
+      flex: 1;
+      padding: 36px 96px 72px;
+      display: flex;
+      gap: 60px;
+      overflow: hidden;
+    }
+
+    .sb.single { flex-direction: column; gap: 24px; }
+    .sb.wide-left  { } /* default 1:1 */
+
+    .col      { flex: 1;   display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+    .col-5    { flex: 0.9; display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+    .col-lg   { flex: 1.3; display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+    .col-full { flex: 1;   display: flex; flex-direction: column; gap: 18px; }
+
+    /* ── Typography ── */
+    h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    p   { font-size: 0.97rem; line-height: 1.72; color: var(--stone); }
+    strong { color: var(--ink); font-weight: 500; }
+
+    ul, ol { padding-left: 18px; display: flex; flex-direction: column; gap: 10px; }
+    li { font-size: 0.94rem; line-height: 1.6; color: var(--stone); }
+    li::marker { color: var(--accent); }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82em;
+      background: rgba(123,57,40,0.07);
+      color: var(--accent);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* ── Note aside ── */
+    .aside {
+      border-left: 2px solid var(--rule);
+      padding: 12px 18px;
+    }
+    .aside.em { border-left-color: var(--accent); }
+    .aside p  { font-size: 0.92rem; }
+
+    /* ── Code block ── */
+    pre {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 22px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.79rem;
+      line-height: 1.72;
+      color: var(--code-fg);
+      overflow: auto;
+      flex: 1;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    .t  { color: #7FBFCF; font-weight: 500; } /* tag */
+    .a  { color: #C9A870; }                    /* attr */
+    .s  { color: #88BA6E; }                    /* string */
+    .k  { color: #C278B0; font-weight: 500; } /* keyword */
+    .c  { color: #4A566A; font-style: italic; }/* comment */
+
+    /* ── Rendered preview (iframe) ── */
+    .pv-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    .pv-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.63rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--stone);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule);
+      flex-shrink: 0;
+    }
+
+    .pv-frame {
+      flex: 1;
+      width: 100%;
+      border: 1px solid var(--rule);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      background: #fff;
+    }
+
+    /* ── Reference table ── */
+    .rtable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .rtable th {
+      text-align: left;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .rtable td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--rule);
+      color: var(--stone);
+      font-weight: 300;
+      font-size: 0.88rem;
+      vertical-align: top;
+    }
+    .rtable td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* ── Concept slide (single idea, large text) ── */
+    .concept {
+      justify-content: center;
+      padding: 0 128px;
+      gap: 40px;
+    }
+
+    .concept-h {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      font-weight: 300;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .concept-body {
+      max-width: 640px;
+      font-size: 1.05rem;
+      color: var(--stone);
+      line-height: 1.8;
+    }
+
+    /* ── Task slides ── */
+    .task-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- ── Templates: iframe preview content (hidden) ──────────────── -->
+<!-- Browser renders these with pure UA default styles -->
+
+<template id="p03">
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>BAUET Web Programming</title></head><body><h1>Hello, CSE Department!</h1><p>HTML is the backbone of the web.</p></body></html>
+</template>
+
+<template id="p05">
+<h1>Chapter One</h1>
+<h2>Introduction to HTML</h2>
+<h3>What are tags?</h3>
+<h4>Self-closing vs paired tags</h4>
+<h5>A note on nesting</h5>
+<h6>Smallest heading</h6>
+</template>
+
+<template id="p06">
+<p>HTML is <strong>not a programming language</strong>. It is a <em>markup</em> language that describes structure.</p>
+<p>The term <code>DOCTYPE</code> tells the browser which version of HTML to use. Use <mark><!DOCTYPE html></mark> for HTML5.</p>
+<hr>
+<p>After a thematic break.</p>
+</template>
+
+<template id="p07">
+<p><a href="#">Internal link — same page</a></p>
+<p><a href="https://bauet.ac.bd" target="_blank">External link — opens new tab</a></p>
+<p><a href="mailto:web@bauet.ac.bd">Email link</a></p>
+</template>
+
+<template id="p08">
+<figure>
+  <img src="https://placehold.co/200x150/cccccc/444?text=profile.jpg" alt="Student profile photo" width="200" height="150">
+  <figcaption>Fig 1. Student profile photo</figcaption>
+</figure>
+</template>
+
+<template id="p09">
+<ul>
+  <li>HTML5 Semantics</li>
+  <li>CSS3 Layouts</li>
+  <li>JavaScript DOM</li>
+</ul>
+<br>
+<ol>
+  <li>Write the HTML structure</li>
+  <li>Apply CSS styles</li>
+  <li>Add JavaScript behaviour</li>
+</ol>
+</template>
+
+<template id="p10">
+<dl>
+  <dt>HTML</dt>
+  <dd>HyperText Markup Language — describes structure</dd>
+  <dt>CSS</dt>
+  <dd>Cascading Style Sheets — controls presentation</dd>
+  <dt>JS</dt>
+  <dd>JavaScript — adds interactivity</dd>
+</dl>
+</template>
+
+<template id="p14">
+<table border="1" cellpadding="6">
+  <caption>Weekly Lab Schedule</caption>
+  <thead>
+    <tr><th>Day</th><th>09:00–11:00</th><th>11:00–13:00</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Sunday</td><td>Web Programming</td><td>Data Structures</td></tr>
+    <tr><td>Monday</td><td>Algorithms</td><td>Operating Systems</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><td colspan="3">Semester: Summer 2026</td></tr>
+  </tfoot>
+</table>
+</template>
+
+<template id="p15">
+<table border="1" cellpadding="6">
+  <caption>Mid-Term Exam Routine</caption>
+  <thead>
+    <tr><th>Day</th><th>9–10 AM</th><th>10–11 AM</th><th>11–12 PM</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sunday</td>
+      <td colspan="3" style="text-align:center">⟵ Lunch Break (all halls) ⟶</td>
+    </tr>
+    <tr>
+      <td>Monday</td>
+      <td rowspan="2">Web Lab (2 hrs)</td>
+      <td>Physics</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Tuesday</td>
+      <td>Algorithms</td>
+      <td>DS</td>
+    </tr>
+  </tbody>
+</table>
+</template>
+
+<template id="p16">
+<form action="#" method="POST">
+  <fieldset>
+    <legend>Student Information</legend>
+    <label for="n">Full Name:</label><br>
+    <input type="text" id="n" name="fullname"><br><br>
+    <label for="e">Email:</label><br>
+    <input type="email" id="e" name="email"><br><br>
+    <label for="sec">Section:</label><br>
+    <select id="sec" name="section">
+      <option>-- Choose --</option>
+      <option>Section A</option>
+      <option>Section B</option>
+    </select>
+  </fieldset>
+  <br>
+  <button type="submit">Submit</button>
+  <button type="reset">Clear</button>
+</form>
+</template>
+
+<template id="p17">
+<label for="t1">text</label><br>
+<input type="text" id="t1" placeholder="plain text"><br><br>
+<label for="t2">email</label><br>
+<input type="email" id="t2" placeholder="user@example.com"><br><br>
+<label for="t3">password</label><br>
+<input type="password" id="t3" placeholder="masked"><br><br>
+<label for="t4">tel</label><br>
+<input type="tel" id="t4" placeholder="01700000000"><br><br>
+<label for="t5">date</label><br>
+<input type="date" id="t5"><br><br>
+<label for="t6">number</label><br>
+<input type="number" id="t6" min="1" max="100" placeholder="1–100">
+</template>
+
+<template id="p18">
+<p><strong>Radio (one choice):</strong></p>
+<input type="radio" id="r1" name="yr" value="1"><label for="r1"> Year 1</label><br>
+<input type="radio" id="r2" name="yr" value="2"><label for="r2"> Year 2</label><br>
+<input type="radio" id="r3" name="yr" value="3"><label for="r3"> Year 3</label>
+<br><br>
+<p><strong>Checkbox (multiple):</strong></p>
+<input type="checkbox" id="c1" name="topics[]"><label for="c1"> HTML</label><br>
+<input type="checkbox" id="c2" name="topics[]"><label for="c2"> CSS</label><br>
+<input type="checkbox" id="c3" name="topics[]"><label for="c3"> JavaScript</label>
+<br><br>
+<label for="sz">T-shirt size:</label><br>
+<select id="sz" name="size">
+  <option>S</option><option>M</option><option>L</option><option>XL</option>
+</select>
+</template>
+
+<template id="p19">
+<form onsubmit="event.preventDefault();alert('Valid!')">
+  <label for="v1">Name (required):</label><br>
+  <input type="text" id="v1" required placeholder="Your full name"><br><br>
+  <label for="v2">Student ID (9 digits):</label><br>
+  <input type="text" id="v2" pattern="[0-9]{9}" title="Exactly 9 digits" required placeholder="211000100"><br><br>
+  <label for="v3">Score (1–100):</label><br>
+  <input type="number" id="v3" min="1" max="100"><br><br>
+  <label for="v4">Upload (PDF only):</label><br>
+  <input type="file" id="v4" accept=".pdf"><br><br>
+  <button type="submit">Submit — watch validation fire</button>
+</form>
+</template>
+
+<template id="p20">
+<figure>
+  <img src="https://placehold.co/300x180/dddddd/555?text=campus.jpg" alt="BAUET campus aerial view" width="300">
+  <figcaption>Fig. 1 — BAUET main campus, aerial view.</figcaption>
+</figure>
+</template>
+
+<template id="p23-target">
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Maruf Islam — Developer Bio</title></head>
+<body>
+<header>
+  <img src="https://placehold.co/80x80/cccccc/555?text=Photo" alt="Profile photo" width="80" height="80">
+  <h1>Maruf Islam</h1>
+  <p><em>CSE Undergraduate &mdash; BAUET, 3rd Year</em></p>
+</header>
+<hr>
+<main>
+  <section>
+    <h2>About Me</h2>
+    <p>I am a <strong>passionate computer science student</strong> at BAUET. I enjoy building things for the web.</p>
+  </section>
+  <section>
+    <h2>Education</h2>
+    <ol>
+      <li>SSC — Dhaka Board, 2019 — GPA 5.00</li>
+      <li>HSC — Dhaka Board, 2021 — GPA 4.92</li>
+      <li>B.Sc. in CSE — BAUET (current)</li>
+    </ol>
+  </section>
+  <section>
+    <h2>Skills</h2>
+    <ul>
+      <li>HTML5 &amp; Semantic Markup</li>
+      <li>CSS3 — Flexbox &amp; Grid</li>
+      <li>Python, C, C++</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Projects</h2>
+    <ul>
+      <li><a href="#">Student Portal UI</a> — HTML/CSS layout practice</li>
+      <li><a href="#">Algorithm Visualizer</a> — sorting animations</li>
+    </ul>
+  </section>
+</main>
+<hr>
+<footer>
+  <p>&copy; 2026 Maruf Islam &mdash; BAUET</p>
+</footer>
+</body>
+</html>
+</template>
+
+<template id="p24-target">
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Exam Routine</title></head><body>
+<h1>CSE Department — Mid-Term Exam Routine</h1>
+<h2>Summer Semester 2026</h2>
+<table border="1" cellpadding="8" cellspacing="0">
+  <caption><strong>B.Sc. in CSE — All Sections</strong></caption>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>8:00 – 10:00 AM</th>
+      <th>10:00 – 12:00 PM</th>
+      <th>1:00 – 3:00 PM</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sunday, 28 Jul</td>
+      <td>Mathematics II</td>
+      <td colspan="2" align="center">⟵ No Exam — Prayer Break ⟶</td>
+    </tr>
+    <tr>
+      <td>Monday, 29 Jul</td>
+      <td rowspan="2" valign="middle">Web Programming Lab<br>(4-hour session)</td>
+      <td>Algorithms</td>
+      <td>Physics</td>
+    </tr>
+    <tr>
+      <td>Tuesday, 30 Jul</td>
+      <td>Data Structures</td>
+      <td>Discrete Math</td>
+    </tr>
+    <tr>
+      <td>Wednesday, 31 Jul</td>
+      <td colspan="3" align="center">— No Exam —</td>
+    </tr>
+    <tr>
+      <td>Thursday, 01 Aug</td>
+      <td>Operating Systems</td>
+      <td>Software Eng.</td>
+      <td>Database Systems</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4">All exams are closed-book. Bring your student ID.</td>
+    </tr>
+  </tfoot>
+</table>
+</body></html>
+</template>
+
+<template id="p25-target">
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Tech Fest 2026</title></head><body>
+<header>
+  <h1>Tech Fest 2026 — Registration</h1>
+  <p>Dept. of Computer Science &amp; Engineering, BAUET</p>
+  <hr>
+</header>
+<main>
+<form action="#" method="POST">
+  <fieldset>
+    <legend>Personal Information</legend>
+    <label for="fn">Full Name:</label><br>
+    <input type="text" id="fn" name="fullname" placeholder="Your full name" required><br><br>
+    <label for="em">Institutional Email:</label><br>
+    <input type="email" id="em" name="email" placeholder="id@bauet.ac.bd" required><br><br>
+    <label for="ph">Phone Number (11 digits):</label><br>
+    <input type="tel" id="ph" name="phone" pattern="[0-9]{11}" placeholder="01700000000" required><br><br>
+    <label for="sid">Student ID (9 digits):</label><br>
+    <input type="text" id="sid" name="studentid" pattern="[0-9]{9}" title="9 digits" required>
+  </fieldset>
+  <br>
+  <fieldset>
+    <legend>Event Registration</legend>
+    <p><strong>Participant Category:</strong></p>
+    <input type="radio" id="ug" name="category" value="undergrad" required>
+    <label for="ug">Undergraduate</label><br>
+    <input type="radio" id="pg" name="category" value="postgrad">
+    <label for="pg">Postgraduate</label><br>
+    <input type="radio" id="fac" name="category" value="faculty">
+    <label for="fac">Faculty / Industry</label>
+    <br><br>
+    <p><strong>Events (select all that apply):</strong></p>
+    <input type="checkbox" id="ev1" name="events[]" value="hackathon">
+    <label for="ev1">Hackathon</label><br>
+    <input type="checkbox" id="ev2" name="events[]" value="poster">
+    <label for="ev2">Poster Presentation</label><br>
+    <input type="checkbox" id="ev3" name="events[]" value="gaming">
+    <label for="ev3">Gaming Contest</label><br>
+    <input type="checkbox" id="ev4" name="events[]" value="robo">
+    <label for="ev4">Robo Race</label>
+    <br><br>
+    <label for="ts">T-Shirt Size:</label><br>
+    <select id="ts" name="tshirt_size">
+      <option value="">-- Select --</option>
+      <option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option>
+    </select>
+  </fieldset>
+  <br>
+  <fieldset>
+    <legend>Additional Details</legend>
+    <label for="rc">Payment Receipt (PDF or PNG):</label><br>
+    <input type="file" id="rc" name="receipt" accept=".pdf,.png"><br><br>
+    <label for="sr">Special Requirements / Dietary Notes:</label><br>
+    <textarea id="sr" name="special" rows="3" cols="40" placeholder="Leave blank if none"></textarea>
+  </fieldset>
+  <br>
+  <button type="submit">Submit Registration</button>
+  <button type="reset">Clear Form</button>
+</form>
+</main>
+<hr>
+<footer><p>Deadline: 5 August 2026 &mdash; BAUET Tech Fest Committee</p></footer>
+</body></html>
+</template>
+
+
+<!-- ─────────────────────────────────────────────────────────────── -->
+<!--  SLIDES                                                         -->
+<!-- ─────────────────────────────────────────────────────────────── -->
+
+<!-- 01 · Title ──────────────────────────────────────────────────── -->
+<div class="slide active hero" id="s01">
+  <p class="hero-label">Web Programming · Lab 01 · BAUET CSE</p>
+  <h1 class="hero-h1">HTML5<br>Fundamentals</h1>
+  <div class="hero-line"></div>
+  <p class="hero-sub">Structure, semantics, tabular data, forms, and native validation — without a single line of CSS or JavaScript.</p>
+</div>
+
+<!-- 02 · What is HTML ───────────────────────────────────────────── -->
+<div class="slide concept" id="s02">
+  <h2 class="concept-h">HTML describes<br>structure, not style.</h2>
+  <div class="hero-line"></div>
+  <p class="concept-body">
+    HTML — <em>HyperText Markup Language</em> — tells the browser what content is on a page and what role each piece plays: a heading, a paragraph, a list, a link, a form. It says nothing about colour, font, or layout. That is CSS's job.
+  </p>
+  <p class="concept-body">
+    A browser can render HTML with no CSS at all and the document remains fully readable. That is its greatest strength.
+  </p>
+</div>
+
+<!-- 03 · Boilerplate ────────────────────────────────────────────── -->
+<div class="slide" id="s03">
+  <div class="sh">
+    <p class="sh-label">Module 1</p>
+    <h2 class="sh-title">The HTML5 Boilerplate</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="k">&lt;!DOCTYPE html&gt;</span>
+<span class="t">&lt;html</span> <span class="a">lang</span>=<span class="s">"en"</span><span class="t">&gt;</span>
+<span class="t">&lt;head&gt;</span>
+  <span class="t">&lt;meta</span> <span class="a">charset</span>=<span class="s">"UTF-8"</span><span class="t">&gt;</span>
+  <span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"viewport"</span>
+        <span class="a">content</span>=<span class="s">"width=device-width, initial-scale=1.0"</span><span class="t">&gt;</span>
+  <span class="t">&lt;title&gt;</span>BAUET Web Programming<span class="t">&lt;/title&gt;</span>
+<span class="t">&lt;/head&gt;</span>
+<span class="t">&lt;body&gt;</span>
+
+  <span class="t">&lt;h1&gt;</span>Hello, CSE Department!<span class="t">&lt;/h1&gt;</span>
+  <span class="t">&lt;p&gt;</span>HTML is the backbone of the web.<span class="t">&lt;/p&gt;</span>
+
+<span class="t">&lt;/body&gt;</span>
+<span class="t">&lt;/html&gt;</span></code></pre>
+      <div class="aside em">
+        <p><code>&lt;!DOCTYPE html&gt;</code> activates HTML5 mode. Without it, browsers fall back to legacy quirks mode.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p03"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 04 · Inside the Head ────────────────────────────────────────── -->
+<div class="slide" id="s04">
+  <div class="sh">
+    <p class="sh-label">Module 1</p>
+    <h2 class="sh-title">Inside the &lt;head&gt;</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+      <h3>What lives in the head?</h3>
+      <p>The <code>&lt;head&gt;</code> is invisible to users. It holds metadata that the browser, search engines, and social media scrapers read.</p>
+      <table class="rtable">
+        <thead><tr><th>Tag</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>&lt;title&gt;</td><td>Text shown in browser tab and search results</td></tr>
+          <tr><td>&lt;meta charset&gt;</td><td>Character encoding — always UTF-8</td></tr>
+          <tr><td>&lt;meta name="viewport"&gt;</td><td>Enables correct mobile scaling</td></tr>
+          <tr><td>&lt;meta name="description"&gt;</td><td>Search-engine page summary (160 chars)</td></tr>
+          <tr><td>&lt;link rel="stylesheet"&gt;</td><td>Links an external CSS file</td></tr>
+          <tr><td>&lt;script src&gt;</td><td>Links an external JavaScript file</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+<pre><code><span class="t">&lt;head&gt;</span>
+  <span class="c">&lt;!-- always first --&gt;</span>
+  <span class="t">&lt;meta</span> <span class="a">charset</span>=<span class="s">"UTF-8"</span><span class="t">&gt;</span>
+
+  <span class="c">&lt;!-- mobile scaling --&gt;</span>
+  <span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"viewport"</span>
+        <span class="a">content</span>=<span class="s">"width=device-width,
+                 initial-scale=1.0"</span><span class="t">&gt;</span>
+
+  <span class="c">&lt;!-- browser tab title --&gt;</span>
+  <span class="t">&lt;title&gt;</span>BAUET Lab Portal<span class="t">&lt;/title&gt;</span>
+
+  <span class="c">&lt;!-- SEO description --&gt;</span>
+  <span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"description"</span>
+        <span class="a">content</span>=<span class="s">"BAUET CSE lab resources"</span><span class="t">&gt;</span>
+
+  <span class="c">&lt;!-- external CSS --&gt;</span>
+  <span class="t">&lt;link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span>
+        <span class="a">href</span>=<span class="s">"style.css"</span><span class="t">&gt;</span>
+<span class="t">&lt;/head&gt;</span></code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- 05 · Headings ───────────────────────────────────────────────── -->
+<div class="slide" id="s05">
+  <div class="sh">
+    <p class="sh-label">Module 2</p>
+    <h2 class="sh-title">Headings — h1 through h6</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- One h1 per page, never skip levels --&gt;</span>
+<span class="t">&lt;h1&gt;</span>Chapter One<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;h2&gt;</span>Introduction to HTML<span class="t">&lt;/h2&gt;</span>
+<span class="t">&lt;h3&gt;</span>What are tags?<span class="t">&lt;/h3&gt;</span>
+<span class="t">&lt;h4&gt;</span>Self-closing vs paired tags<span class="t">&lt;/h4&gt;</span>
+<span class="t">&lt;h5&gt;</span>A note on nesting<span class="t">&lt;/h5&gt;</span>
+<span class="t">&lt;h6&gt;</span>Smallest heading<span class="t">&lt;/h6&gt;</span></code></pre>
+      <div class="aside em">
+        <p>Use exactly <strong>one <code>&lt;h1&gt;</code></strong> per page. Search engines use heading order to index your page structure. Screen readers let users jump between headings to navigate.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p05"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 06 · Paragraphs & Inline Text ──────────────────────────────── -->
+<div class="slide" id="s06">
+  <div class="sh">
+    <p class="sh-label">Module 2</p>
+    <h2 class="sh-title">Paragraphs & Inline Text Elements</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="t">&lt;p&gt;</span>HTML is <span class="t">&lt;strong&gt;</span>not a programming
+language<span class="t">&lt;/strong&gt;</span>. It is a
+<span class="t">&lt;em&gt;</span>markup<span class="t">&lt;/em&gt;</span> language.<span class="t">&lt;/p&gt;</span>
+
+<span class="t">&lt;p&gt;</span>Use <span class="t">&lt;code&gt;</span>&amp;lt;!DOCTYPE html&gt;<span class="t">&lt;/code&gt;</span>
+for HTML5. Use <span class="t">&lt;mark&gt;</span>this tag<span class="t">&lt;/mark&gt;</span>
+to highlight important text.<span class="t">&lt;/p&gt;</span>
+
+<span class="t">&lt;hr&gt;</span>
+<span class="t">&lt;p&gt;</span>After a thematic break.<span class="t">&lt;/p&gt;</span></code></pre>
+      <table class="rtable" style="margin-top:4px">
+        <thead><tr><th>Tag</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>&lt;strong&gt;</td><td>Important — renders bold</td></tr>
+          <tr><td>&lt;em&gt;</td><td>Emphasis — renders italic</td></tr>
+          <tr><td>&lt;mark&gt;</td><td>Highlighted text</td></tr>
+          <tr><td>&lt;code&gt;</td><td>Inline code snippet</td></tr>
+          <tr><td>&lt;hr&gt;</td><td>Thematic break</td></tr>
+          <tr><td>&lt;br&gt;</td><td>Line break within a paragraph</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p06"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 07 · Hyperlinks ─────────────────────────────────────────────── -->
+<div class="slide" id="s07">
+  <div class="sh">
+    <p class="sh-label">Module 3</p>
+    <h2 class="sh-title">Hyperlinks</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- Internal anchor link --&gt;</span>
+<span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"#contact"</span><span class="t">&gt;</span>
+  Jump to Contact section
+<span class="t">&lt;/a&gt;</span>
+
+<span class="c">&lt;!-- External link, new tab --&gt;</span>
+<span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"https://bauet.ac.bd"</span>
+   <span class="a">target</span>=<span class="s">"_blank"</span><span class="t">&gt;</span>
+  BAUET Website
+<span class="t">&lt;/a&gt;</span>
+
+<span class="c">&lt;!-- Email link --&gt;</span>
+<span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"mailto:info@bauet.ac.bd"</span><span class="t">&gt;</span>
+  Send email
+<span class="t">&lt;/a&gt;</span></code></pre>
+      <div class="aside em">
+        <p><code>target="_blank"</code> opens the link in a new tab. Use it for external sites so users do not lose their place on your page.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p07"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 08 · Images ─────────────────────────────────────────────────── -->
+<div class="slide" id="s08">
+  <div class="sh">
+    <p class="sh-label">Module 3</p>
+    <h2 class="sh-title">Images & Figure</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- Standalone image --&gt;</span>
+<span class="t">&lt;img</span>
+  <span class="a">src</span>=<span class="s">"profile.jpg"</span>
+  <span class="a">alt</span>=<span class="s">"Student profile photo"</span>
+  <span class="a">width</span>=<span class="s">"200"</span>
+  <span class="a">height</span>=<span class="s">"150"</span><span class="t">&gt;</span>
+
+<span class="c">&lt;!-- With caption --&gt;</span>
+<span class="t">&lt;figure&gt;</span>
+  <span class="t">&lt;img</span>
+    <span class="a">src</span>=<span class="s">"campus.jpg"</span>
+    <span class="a">alt</span>=<span class="s">"BAUET campus aerial view"</span>
+    <span class="a">width</span>=<span class="s">"400"</span><span class="t">&gt;</span>
+  <span class="t">&lt;figcaption&gt;</span>
+    Fig 1. BAUET campus, aerial view.
+  <span class="t">&lt;/figcaption&gt;</span>
+<span class="t">&lt;/figure&gt;</span></code></pre>
+      <div class="aside em">
+        <p><code>alt</code> is mandatory. If the image fails to load, or a screen reader is used, the alt text is what the user gets. An empty <code>alt=""</code> is valid only for purely decorative images.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p08"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 09 · Lists ──────────────────────────────────────────────────── -->
+<div class="slide" id="s09">
+  <div class="sh">
+    <p class="sh-label">Module 4</p>
+    <h2 class="sh-title">Lists — ul & ol</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- Unordered — order does not matter --&gt;</span>
+<span class="t">&lt;ul&gt;</span>
+  <span class="t">&lt;li&gt;</span>HTML5 Semantics<span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span>CSS3 Layouts<span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span>JavaScript DOM<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ul&gt;</span>
+
+<span class="c">&lt;!-- Ordered — sequence matters --&gt;</span>
+<span class="t">&lt;ol&gt;</span>
+  <span class="t">&lt;li&gt;</span>Write the HTML structure<span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span>Apply CSS styles<span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span>Add JavaScript behaviour<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></code></pre>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p09"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 10 · Description Lists ─────────────────────────────────────── -->
+<div class="slide" id="s10">
+  <div class="sh">
+    <p class="sh-label">Module 4</p>
+    <h2 class="sh-title">Description Lists — dl</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- Term-definition pairs --&gt;</span>
+<span class="t">&lt;dl&gt;</span>
+  <span class="t">&lt;dt&gt;</span>HTML<span class="t">&lt;/dt&gt;</span>
+  <span class="t">&lt;dd&gt;</span>HyperText Markup Language
+      — describes structure<span class="t">&lt;/dd&gt;</span>
+
+  <span class="t">&lt;dt&gt;</span>CSS<span class="t">&lt;/dt&gt;</span>
+  <span class="t">&lt;dd&gt;</span>Cascading Style Sheets
+      — controls presentation<span class="t">&lt;/dd&gt;</span>
+
+  <span class="t">&lt;dt&gt;</span>JS<span class="t">&lt;/dt&gt;</span>
+  <span class="t">&lt;dd&gt;</span>JavaScript
+      — adds interactivity<span class="t">&lt;/dd&gt;</span>
+<span class="t">&lt;/dl&gt;</span></code></pre>
+      <div class="aside">
+        <p>Use <code>&lt;dl&gt;</code> for glossaries, specifications, metadata panels — anywhere content has a term-and-definition relationship.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p10"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 11 · Why Semantics ──────────────────────────────────────────── -->
+<div class="slide concept" id="s11">
+  <h2 class="concept-h">A tag's name<br>is its promise.</h2>
+  <div class="hero-line"></div>
+  <p class="concept-body">
+    When you write <code>&lt;div id="nav"&gt;</code>, you are making a visual promise that only CSS can keep. When you write <code>&lt;nav&gt;</code>, you are making a structural promise that the browser, search engine, and screen reader all understand — with or without CSS.
+  </p>
+  <p class="concept-body">
+    A blind user navigates by landmark. A search engine indexes by landmark. A developer reads by landmark. Semantic HTML is the foundation that makes all three possible simultaneously, for free, with zero extra effort.
+  </p>
+</div>
+
+<!-- 12 · Structural Semantics ──────────────────────────────────── -->
+<div class="slide" id="s12">
+  <div class="sh">
+    <p class="sh-label">Module 5</p>
+    <h2 class="sh-title">Structural Semantic Elements</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+      <div class="aside em">
+        <p>Non-semantic — machines cannot infer purpose</p>
+      </div>
+<pre><code><span class="t">&lt;div</span> <span class="a">id</span>=<span class="s">"header"</span><span class="t">&gt;</span>
+  <span class="t">&lt;div</span> <span class="a">id</span>=<span class="s">"nav"</span><span class="t">&gt;</span>Links<span class="t">&lt;/div&gt;</span>
+<span class="t">&lt;/div&gt;</span>
+<span class="t">&lt;div</span> <span class="a">id</span>=<span class="s">"content"</span><span class="t">&gt;</span>
+  <span class="t">&lt;div</span> <span class="a">class</span>=<span class="s">"post"</span><span class="t">&gt;</span>Article<span class="t">&lt;/div&gt;</span>
+<span class="t">&lt;/div&gt;</span>
+<span class="t">&lt;div</span> <span class="a">id</span>=<span class="s">"footer"</span><span class="t">&gt;</span>Copyright<span class="t">&lt;/div&gt;</span></code></pre>
+    </div>
+    <div class="col">
+      <div class="aside em" style="border-left-color: var(--accent)">
+        <p>Semantic — purpose is self-evident</p>
+      </div>
+<pre><code><span class="t">&lt;header&gt;</span>
+  <span class="t">&lt;nav&gt;</span>Links<span class="t">&lt;/nav&gt;</span>
+<span class="t">&lt;/header&gt;</span>
+
+<span class="t">&lt;main&gt;</span>
+  <span class="t">&lt;article&gt;</span>
+    <span class="t">&lt;section&gt;</span>Content<span class="t">&lt;/section&gt;</span>
+  <span class="t">&lt;/article&gt;</span>
+  <span class="t">&lt;aside&gt;</span>Sidebar<span class="t">&lt;/aside&gt;</span>
+<span class="t">&lt;/main&gt;</span>
+
+<span class="t">&lt;footer&gt;</span>Copyright<span class="t">&lt;/footer&gt;</span></code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- 13 · Semantic Elements Reference ───────────────────────────── -->
+<div class="slide" id="s13">
+  <div class="sh">
+    <p class="sh-label">Module 5</p>
+    <h2 class="sh-title">Semantic Elements — Reference</h2>
+  </div>
+  <div class="sb single">
+    <table class="rtable">
+      <thead><tr><th>Element</th><th>Role</th><th>Where to use</th></tr></thead>
+      <tbody>
+        <tr><td>&lt;header&gt;</td><td>Introductory content for page or section</td><td>Top of page, or top of an article</td></tr>
+        <tr><td>&lt;nav&gt;</td><td>Block of navigation links</td><td>Primary menu, breadcrumb, sidebar nav</td></tr>
+        <tr><td>&lt;main&gt;</td><td>Primary content of the document</td><td>Once per page only</td></tr>
+        <tr><td>&lt;article&gt;</td><td>Self-contained, independently distributable content</td><td>Blog post, news item, lab report</td></tr>
+        <tr><td>&lt;section&gt;</td><td>Thematically related content with a heading</td><td>Chapters, tab panels, grouped content</td></tr>
+        <tr><td>&lt;aside&gt;</td><td>Tangentially related content</td><td>Sidebar, callout, related links</td></tr>
+        <tr><td>&lt;footer&gt;</td><td>Closing content — author, copyright, links</td><td>Bottom of page or article</td></tr>
+        <tr><td>&lt;figure&gt;</td><td>Self-contained illustrative content</td><td>Images, charts, code listings with caption</td></tr>
+        <tr><td>&lt;figcaption&gt;</td><td>Caption for a figure</td><td>Inside &lt;figure&gt;, before or after the content</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 14 · Tables Basics ──────────────────────────────────────────── -->
+<div class="slide" id="s14">
+  <div class="sh">
+    <p class="sh-label">Module 6</p>
+    <h2 class="sh-title">Tables — Structure & Sections</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="t">&lt;table</span> <span class="a">border</span>=<span class="s">"1"</span><span class="t">&gt;</span>
+  <span class="t">&lt;caption&gt;</span>Weekly Lab Schedule<span class="t">&lt;/caption&gt;</span>
+
+  <span class="t">&lt;thead&gt;</span>
+    <span class="t">&lt;tr&gt;</span>
+      <span class="t">&lt;th&gt;</span>Day<span class="t">&lt;/th&gt;</span>
+      <span class="t">&lt;th&gt;</span>09:00–11:00<span class="t">&lt;/th&gt;</span>
+      <span class="t">&lt;th&gt;</span>11:00–13:00<span class="t">&lt;/th&gt;</span>
+    <span class="t">&lt;/tr&gt;</span>
+  <span class="t">&lt;/thead&gt;</span>
+
+  <span class="t">&lt;tbody&gt;</span>
+    <span class="t">&lt;tr&gt;</span>
+      <span class="t">&lt;td&gt;</span>Sunday<span class="t">&lt;/td&gt;</span>
+      <span class="t">&lt;td&gt;</span>Web Programming<span class="t">&lt;/td&gt;</span>
+      <span class="t">&lt;td&gt;</span>Data Structures<span class="t">&lt;/td&gt;</span>
+    <span class="t">&lt;/tr&gt;</span>
+  <span class="t">&lt;/tbody&gt;</span>
+
+  <span class="t">&lt;tfoot&gt;</span>
+    <span class="t">&lt;tr&gt;&lt;td</span> <span class="a">colspan</span>=<span class="s">"3"</span><span class="t">&gt;</span>
+      Summer 2026
+    <span class="t">&lt;/td&gt;&lt;/tr&gt;</span>
+  <span class="t">&lt;/tfoot&gt;</span>
+<span class="t">&lt;/table&gt;</span></code></pre>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p14"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 15 · Tables Spanning ────────────────────────────────────────── -->
+<div class="slide" id="s15">
+  <div class="sh">
+    <p class="sh-label">Module 6</p>
+    <h2 class="sh-title">Tables — colspan & rowspan</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- colspan merges across columns --&gt;</span>
+<span class="t">&lt;td</span> <span class="a">colspan</span>=<span class="s">"3"</span><span class="t">&gt;</span>
+  Lunch Break (all halls)
+<span class="t">&lt;/td&gt;</span>
+
+<span class="c">&lt;!-- rowspan merges across rows --&gt;</span>
+<span class="t">&lt;td</span> <span class="a">rowspan</span>=<span class="s">"2"</span><span class="t">&gt;</span>
+  Web Lab (2 hours)
+<span class="t">&lt;/td&gt;</span></code></pre>
+      <div class="aside em">
+        <p><strong>colspan</strong> = how many columns this cell occupies.<br><strong>rowspan</strong> = how many rows this cell occupies.<br>The cells it "absorbs" must be removed from the markup.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p15"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 16 · Forms Structure ────────────────────────────────────────── -->
+<div class="slide" id="s16">
+  <div class="sh">
+    <p class="sh-label">Module 7</p>
+    <h2 class="sh-title">Forms — Structure & Label Binding</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="t">&lt;form</span> <span class="a">action</span>=<span class="s">"#"</span> <span class="a">method</span>=<span class="s">"POST"</span><span class="t">&gt;</span>
+
+  <span class="t">&lt;fieldset&gt;</span>
+    <span class="t">&lt;legend&gt;</span>Student Information<span class="t">&lt;/legend&gt;</span>
+
+    <span class="c">&lt;!-- for= must match id= --&gt;</span>
+    <span class="t">&lt;label</span> <span class="a">for</span>=<span class="s">"n"</span><span class="t">&gt;</span>Full Name:<span class="t">&lt;/label&gt;</span>
+    <span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"text"</span>
+           <span class="a">id</span>=<span class="s">"n"</span>
+           <span class="a">name</span>=<span class="s">"fullname"</span><span class="t">&gt;</span>
+
+    <span class="t">&lt;label</span> <span class="a">for</span>=<span class="s">"e"</span><span class="t">&gt;</span>Email:<span class="t">&lt;/label&gt;</span>
+    <span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"email"</span>
+           <span class="a">id</span>=<span class="s">"e"</span>
+           <span class="a">name</span>=<span class="s">"email"</span><span class="t">&gt;</span>
+
+  <span class="t">&lt;/fieldset&gt;</span>
+
+  <span class="t">&lt;button</span> <span class="a">type</span>=<span class="s">"submit"</span><span class="t">&gt;</span>Submit<span class="t">&lt;/button&gt;</span>
+  <span class="t">&lt;button</span> <span class="a">type</span>=<span class="s">"reset"</span><span class="t">&gt;</span>Clear<span class="t">&lt;/button&gt;</span>
+
+<span class="t">&lt;/form&gt;</span></code></pre>
+      <div class="aside em">
+        <p>Clicking a correctly bound <code>&lt;label&gt;</code> focuses its input. This is a usability and accessibility requirement, not optional.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser — click a label to test binding</div>
+      <iframe class="pv-frame" data-p="p16"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 17 · Input Types: Text ──────────────────────────────────────── -->
+<div class="slide" id="s17">
+  <div class="sh">
+    <p class="sh-label">Module 7</p>
+    <h2 class="sh-title">Input Types — Text Variants</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"text"</span>
+       <span class="a">name</span>=<span class="s">"name"</span><span class="t">&gt;</span>
+
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"email"</span>
+       <span class="a">name</span>=<span class="s">"email"</span><span class="t">&gt;</span>
+
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"password"</span>
+       <span class="a">name</span>=<span class="s">"pwd"</span><span class="t">&gt;</span>
+
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"tel"</span>
+       <span class="a">name</span>=<span class="s">"phone"</span><span class="t">&gt;</span>
+
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"date"</span>
+       <span class="a">name</span>=<span class="s">"dob"</span><span class="t">&gt;</span>
+
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"number"</span>
+       <span class="a">min</span>=<span class="s">"1"</span>
+       <span class="a">max</span>=<span class="s">"100"</span><span class="t">&gt;</span></code></pre>
+      <div class="aside">
+        <p><code>type="email"</code> and <code>type="tel"</code> tell mobile devices which keyboard to display — and <code>email</code> validates format automatically.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser — all inputs are real, try them</div>
+      <iframe class="pv-frame" data-p="p17"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 18 · Input Types: Choices ───────────────────────────────────── -->
+<div class="slide" id="s18">
+  <div class="sh">
+    <p class="sh-label">Module 7</p>
+    <h2 class="sh-title">Input Types — Choice Controls</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- Radio: one choice, same name --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"radio"</span> <span class="a">name</span>=<span class="s">"yr"</span>
+       <span class="a">id</span>=<span class="s">"y1"</span> <span class="a">value</span>=<span class="s">"1"</span><span class="t">&gt;</span>
+<span class="t">&lt;label</span> <span class="a">for</span>=<span class="s">"y1"</span><span class="t">&gt;</span>Year 1<span class="t">&lt;/label&gt;</span>
+
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"radio"</span> <span class="a">name</span>=<span class="s">"yr"</span>
+       <span class="a">id</span>=<span class="s">"y2"</span> <span class="a">value</span>=<span class="s">"2"</span><span class="t">&gt;</span>
+<span class="t">&lt;label</span> <span class="a">for</span>=<span class="s">"y2"</span><span class="t">&gt;</span>Year 2<span class="t">&lt;/label&gt;</span>
+
+<span class="c">&lt;!-- Checkbox: independent choices --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"checkbox"</span> <span class="a">name</span>=<span class="s">"html"</span>
+       <span class="a">id</span>=<span class="s">"c1"</span><span class="t">&gt;</span>
+<span class="t">&lt;label</span> <span class="a">for</span>=<span class="s">"c1"</span><span class="t">&gt;</span>HTML<span class="t">&lt;/label&gt;</span>
+
+<span class="c">&lt;!-- Select dropdown --&gt;</span>
+<span class="t">&lt;select</span> <span class="a">name</span>=<span class="s">"size"</span> <span class="a">id</span>=<span class="s">"sz"</span><span class="t">&gt;</span>
+  <span class="t">&lt;option</span><span class="t">&gt;</span>S<span class="t">&lt;/option&gt;</span>
+  <span class="t">&lt;option</span><span class="t">&gt;</span>M<span class="t">&lt;/option&gt;</span>
+  <span class="t">&lt;option</span><span class="t">&gt;</span>L<span class="t">&lt;/option&gt;</span>
+<span class="t">&lt;/select&gt;</span></code></pre>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser — all controls are real</div>
+      <iframe class="pv-frame" data-p="p18"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 19 · Native Validation ─────────────────────────────────────── -->
+<div class="slide" id="s19">
+  <div class="sh">
+    <p class="sh-label">Module 8</p>
+    <h2 class="sh-title">Native Validation — No JavaScript</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- required blocks empty submit --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">required</span><span class="t">&gt;</span>
+
+<span class="c">&lt;!-- placeholder shows hint text --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"text"</span>
+       <span class="a">placeholder</span>=<span class="s">"Your full name"</span><span class="t">&gt;</span>
+
+<span class="c">&lt;!-- pattern enforces a regex --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"text"</span>
+       <span class="a">pattern</span>=<span class="s">"[0-9]{9}"</span>
+       <span class="a">title</span>=<span class="s">"Exactly 9 digits"</span>
+       <span class="a">required</span><span class="t">&gt;</span>
+
+<span class="c">&lt;!-- min/max for numbers and dates --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"number"</span>
+       <span class="a">min</span>=<span class="s">"1"</span> <span class="a">max</span>=<span class="s">"100"</span><span class="t">&gt;</span>
+
+<span class="c">&lt;!-- accept filters file picker --&gt;</span>
+<span class="t">&lt;input</span> <span class="a">type</span>=<span class="s">"file"</span>
+       <span class="a">accept</span>=<span class="s">".pdf,.png"</span><span class="t">&gt;</span></code></pre>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered — try submitting empty or invalid values</div>
+      <iframe class="pv-frame" data-p="p19"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 20 · Figure & Figcaption ────────────────────────────────────── -->
+<div class="slide" id="s20">
+  <div class="sh">
+    <p class="sh-label">Module 3</p>
+    <h2 class="sh-title">Figure & Figcaption</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- figure groups content with caption --&gt;</span>
+<span class="t">&lt;figure&gt;</span>
+
+  <span class="t">&lt;img</span>
+    <span class="a">src</span>=<span class="s">"campus.jpg"</span>
+    <span class="a">alt</span>=<span class="s">"BAUET campus aerial view"</span>
+    <span class="a">width</span>=<span class="s">"300"</span><span class="t">&gt;</span>
+
+  <span class="t">&lt;figcaption&gt;</span>
+    Fig. 1 — BAUET main campus,
+    aerial view.
+  <span class="t">&lt;/figcaption&gt;</span>
+
+<span class="t">&lt;/figure&gt;</span></code></pre>
+      <div class="aside em">
+        <p><code>&lt;figure&gt;</code> is for any self-contained illustrative content — images, diagrams, code listings, tables — that could be moved to an appendix without affecting the main flow.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">rendered in browser</div>
+      <iframe class="pv-frame" data-p="p20"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 21 · Audio & Video ──────────────────────────────────────────── -->
+<div class="slide" id="s21">
+  <div class="sh">
+    <p class="sh-label">Module 9</p>
+    <h2 class="sh-title">Audio & Video</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+<pre><code><span class="c">&lt;!-- Video player --&gt;</span>
+<span class="t">&lt;video</span> <span class="a">controls</span> <span class="a">width</span>=<span class="s">"480"</span><span class="t">&gt;</span>
+  <span class="t">&lt;source</span>
+    <span class="a">src</span>=<span class="s">"lecture.mp4"</span>
+    <span class="a">type</span>=<span class="s">"video/mp4"</span><span class="t">&gt;</span>
+  Your browser cannot play video.
+<span class="t">&lt;/video&gt;</span>
+
+<span class="c">&lt;!-- Audio player --&gt;</span>
+<span class="t">&lt;audio</span> <span class="a">controls</span><span class="t">&gt;</span>
+  <span class="t">&lt;source</span>
+    <span class="a">src</span>=<span class="s">"podcast.mp3"</span>
+    <span class="a">type</span>=<span class="s">"audio/mpeg"</span><span class="t">&gt;</span>
+<span class="t">&lt;/audio&gt;</span>
+
+<span class="c">&lt;!-- iFrame embed --&gt;</span>
+<span class="t">&lt;iframe</span>
+  <span class="a">src</span>=<span class="s">"https://maps.google.com"</span>
+  <span class="a">width</span>=<span class="s">"100%"</span>
+  <span class="a">height</span>=<span class="s">"300"</span>
+  <span class="a">loading</span>=<span class="s">"lazy"</span>
+  <span class="a">allowfullscreen</span><span class="t">&gt;</span>
+<span class="t">&lt;/iframe&gt;</span></code></pre>
+    </div>
+    <div class="col" style="justify-content:center">
+      <table class="rtable">
+        <thead><tr><th>Attribute</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>controls</td><td>Shows play/pause/volume bar</td></tr>
+          <tr><td>autoplay</td><td>Starts playing immediately (muted required)</td></tr>
+          <tr><td>loop</td><td>Plays again when finished</td></tr>
+          <tr><td>muted</td><td>Starts without audio</td></tr>
+          <tr><td>loading="lazy"</td><td>Defers iframe load until scrolled near</td></tr>
+        </tbody>
+      </table>
+      <div class="aside em">
+        <p>Always provide a <code>&lt;source&gt;</code> child with <code>type</code> set correctly. The fallback text inside <code>&lt;video&gt;</code> is shown if the browser cannot play the file.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 22 · Full Form Example ──────────────────────────────────────── -->
+<div class="slide" id="s22">
+  <div class="sh">
+    <p class="sh-label">Bringing it together</p>
+    <h2 class="sh-title">A Complete Form in Context</h2>
+  </div>
+  <div class="sb">
+    <div class="col">
+      <p>Every concept from modules 7–8 combined: semantic structure, fieldset grouping, all input types, and native validation.</p>
+      <table class="rtable">
+        <thead><tr><th>Element</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td>&lt;form&gt;</td><td>Container — defines action and method</td></tr>
+          <tr><td>&lt;fieldset&gt;</td><td>Groups related inputs visually and semantically</td></tr>
+          <tr><td>&lt;legend&gt;</td><td>Caption for a fieldset</td></tr>
+          <tr><td>&lt;label&gt;</td><td>Describes an input — must link via for/id</td></tr>
+          <tr><td>&lt;input&gt;</td><td>Data entry — type defines the control</td></tr>
+          <tr><td>&lt;select&gt;</td><td>Dropdown menu</td></tr>
+          <tr><td>&lt;textarea&gt;</td><td>Multi-line free text</td></tr>
+          <tr><td>&lt;button&gt;</td><td>Submit, reset, or generic action</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <div class="aside em">
+        <p>The structure you build today will be exactly what gets styled in the CSS lab next week. Clean semantic HTML makes CSS dramatically easier to write.</p>
+      </div>
+      <div class="aside">
+        <p><strong>Checklist before submitting any form task:</strong><br>
+        — Every input has a label bound via <code>for</code>/<code>id</code><br>
+        — Required fields have <code>required</code><br>
+        — Phone and ID fields have <code>pattern</code><br>
+        — File inputs have <code>accept</code><br>
+        — Page uses semantic layout tags</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 23 · Task 1 ─────────────────────────────────────────────────── -->
+<div class="slide" id="s23">
+  <div class="sh">
+    <p class="sh-label">Task 1</p>
+    <h2 class="sh-title">Personal Developer Bio Page</h2>
+  </div>
+  <div class="sb">
+    <div class="col-5">
+      <p class="task-tag">What to build</p>
+      <ul>
+        <li>A full semantic HTML page — <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code></li>
+        <li>Header: your name as <code>&lt;h1&gt;</code> and a profile photo <code>&lt;img&gt;</code> with <code>alt</code></li>
+        <li>About Me section — a paragraph with <code>&lt;strong&gt;</code> and <code>&lt;em&gt;</code></li>
+        <li>Education — ordered list <code>&lt;ol&gt;</code>: high school → college → university</li>
+        <li>Skills — unordered list <code>&lt;ul&gt;</code> of your tools and languages</li>
+        <li>Projects — external links <code>&lt;a target="_blank"&gt;</code></li>
+        <li>Footer with copyright text</li>
+      </ul>
+      <div class="aside em">
+        <p>The preview shows a completed example. Build your own version using your real information.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">target output — what a good submission looks like</div>
+      <iframe class="pv-frame" data-p="p23-target" style="height:100%"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 24 · Task 2 ─────────────────────────────────────────────────── -->
+<div class="slide" id="s24">
+  <div class="sh">
+    <p class="sh-label">Task 2</p>
+    <h2 class="sh-title">Mid-Term Exam Routine Table</h2>
+  </div>
+  <div class="sb">
+    <div class="col-5">
+      <p class="task-tag">What to build</p>
+      <ul>
+        <li>A table with <code>&lt;caption&gt;</code>, <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code>, and <code>&lt;tfoot&gt;</code></li>
+        <li>At least <strong>one colspan</strong> — e.g. a break or holiday spanning all time columns</li>
+        <li>At least <strong>one rowspan</strong> — e.g. a 2-hour lab session spanning two time slots</li>
+        <li>All column headers using <code>&lt;th&gt;</code></li>
+        <li>At least 5 days and 3 time slots</li>
+      </ul>
+      <div class="aside em">
+        <p>When you use <code>rowspan="2"</code>, remove that cell from the next row — the browser fills it automatically.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">target output — what a good submission looks like</div>
+      <iframe class="pv-frame" data-p="p24-target" style="height:100%"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- 25 · Task 3 ─────────────────────────────────────────────────── -->
+<div class="slide" id="s25">
+  <div class="sh">
+    <p class="sh-label">Task 3</p>
+    <h2 class="sh-title">Tech Fest 2026 Registration Portal</h2>
+  </div>
+  <div class="sb">
+    <div class="col-5">
+      <p class="task-tag">What to build</p>
+      <ul>
+        <li>Semantic page: <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code></li>
+        <li>Name (<code>text</code>, <code>required</code>) · Email (<code>email</code>, <code>required</code>)</li>
+        <li>Phone — <code>tel</code> with <code>pattern="[0-9]{11}"</code></li>
+        <li>Student ID — <code>text</code> with <code>pattern="[0-9]{9}"</code></li>
+        <li>Category — <strong>radio</strong>: Undergraduate / Postgrad / Faculty</li>
+        <li>Events — <strong>checkboxes</strong>: Hackathon / Poster / Gaming / Robo</li>
+        <li>T-shirt size — <code>&lt;select&gt;</code> dropdown</li>
+        <li>Payment receipt — <code>file</code>, <code>accept=".pdf,.png"</code></li>
+        <li>Special notes — <code>&lt;textarea&gt;</code></li>
+        <li>Submit + Reset buttons</li>
+      </ul>
+      <div class="aside em">
+        <p>Every single input needs a bound <code>&lt;label for=""&gt;</code> with a matching <code>id</code>.</p>
+      </div>
+    </div>
+    <div class="pv-wrap">
+      <div class="pv-label">target output — what a good submission looks like</div>
+      <iframe class="pv-frame" data-p="p25-target" style="height:100%"></iframe>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<div id="pager">1 / 25</div>
+
+<script>
+(function () {
+  // ── Inject template content into iframes ──
+  document.querySelectorAll('iframe.pv-frame[data-p]').forEach(function (frame) {
+    var tmpl = document.getElementById(frame.dataset.p);
+    if (!tmpl) return;
+    // Wrap in minimal shell — just margin, rest is browser default UA styles
+    var content = tmpl.innerHTML.trim();
+    var shell = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:14px;}</style></head><body>' + content + '</body></html>';
+    frame.srcdoc = shell;
+  });
+
+  // ── Slide navigation ──
+  var slides = Array.from(document.querySelectorAll('.slide'));
+  var total  = slides.length;
+  var pager  = document.getElementById('pager');
+  var cur    = 0;
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    pager.textContent = (cur + 1) + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  { e.preventDefault(); go(cur + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    { e.preventDefault(); go(cur - 1); }
+    if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
