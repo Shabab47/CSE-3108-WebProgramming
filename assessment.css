@@ -1,0 +1,198 @@
+:root {
+  --paper: #F8F5EF;
+  --surface: #F0EDE5;
+  --normal-letter-ink: #1D1A16;
+  --stone: #7A7066;
+  --rule: #D8D1C5;
+  --brown-font: #7B3928;
+  --serif-font: 'Georgia', 'Garamond', 'Times New Roman', serif;
+  --sans-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--sans-font);
+  background-color: var(--paper);
+  color: var(--normal-letter-ink);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+header {
+  background-color: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--rule); 
+}
+
+header img {
+  border-radius: 50%;
+  border: 2px solid var(--brown-font);
+  margin-bottom: 0.75rem;
+}
+
+header h1 {
+  font-family: var(--serif-font);
+  font-size: 2rem;
+  color: var(--normal-letter-ink);
+}
+
+header p em {
+  color: var(--stone);
+  font-style: italic;
+  font-size: 1rem;
+}
+
+.grey-italy {
+  display: flex;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--stone);
+  margin-top: .5rem;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+section {
+  background-color: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+}
+
+section h2 {
+  font-family: var(--serif-font);
+  font-size: 1.3rem;
+  color: var(--brown-font);
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+section p {
+  color: var(--normal-letter-ink);
+  font-size: 0.95rem;
+}
+
+section p strong {
+  color: var(--brown-font);
+  font-weight: 600;
+}
+
+.ingredients-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.ingredients-table td {
+  width: 50%;
+  padding: 0.4rem 0.5rem 0.4rem 0;
+  vertical-align: top;
+  color: var(--normal-letter-ink);
+}
+
+.ingredients-table td strong {
+  color: var(--brown-font);
+  font-weight: 600;
+}
+
+.instructions-list {
+  list-style: none;
+  counter-reset: steps;
+}
+
+.instructions-list li {
+  counter-increment: steps;
+  position: relative;
+  padding-left: 2.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.instructions-list li::before {
+  content: counter(steps);
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brown-font);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: bold 0.75rem Arial, sans-serif;
+}
+
+.instructions-list li strong {
+  color: var(--brown-font);
+  font-weight: 600;
+}
+
+.tip-box {
+  border-left: 4px solid #36a357;
+  border-right: 1px solid #2a6e40;
+  border-top: 1px solid #2a6e40;
+  border-bottom: 1px solid #2a6e40;
+  border-radius: 6px 6px 6px 6px;
+  padding: 1rem 1.25rem;
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: #000000;
+}
+
+.tip-box strong {
+  color: #36a357;
+}
+
+.nutrition-list {
+  list-style-type: none;
+  font-size: 0.95rem;
+}
+
+.nutrition-list li {
+  position: relative;
+  padding-left: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.nutrition-list li strong {
+  color: var(--brown-font);
+  font-weight: 600;
+}
+
+.nutrition-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--normal-letter-ink);
+}
+
+footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--stone);
+  margin-top: 2rem;
+}
